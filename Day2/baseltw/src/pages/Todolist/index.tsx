@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-}
+import { Task } from "@/services/TodoList/typings";
 
 const TodoList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Load tasks from localStorage on mount
   useEffect(() => {
@@ -24,16 +20,32 @@ const TodoList: React.FC = () => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = () => {
+  const addOrUpdateTask = () => {
     if (!title.trim() || !description.trim()) return;
-    const newTask: Task = { id: Date.now(), title, description };
-    setTasks([...tasks, newTask]);
+
+    if (editingTask) {
+      setTasks(
+        tasks.map((task) =>
+          task.id === editingTask.id ? { ...task, title, description } : task
+        )
+      );
+      setEditingTask(null);
+    } else {
+      const newTask: Task = { id: Date.now(), title, description };
+      setTasks([...tasks, newTask]);
+    }
     setTitle("");
     setDescription("");
   };
 
   const deleteTask = (id: number) => {
     setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  const editTask = (task: Task) => {
+    setTitle(task.title);
+    setDescription(task.description);
+    setEditingTask(task);
   };
 
   return (
@@ -55,9 +67,9 @@ const TodoList: React.FC = () => {
         />
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded w-full"
-          onClick={addTask}
+          onClick={addOrUpdateTask}
         >
-          Add Task
+          {editingTask ? "Update Task" : "Add Task"}
         </button>
       </div>
 
@@ -68,12 +80,20 @@ const TodoList: React.FC = () => {
               <h3 className="font-bold">{task.title}</h3>
               <p>{task.description}</p>
             </div>
-            <button
-              className="bg-red-500 text-white px-3 py-1 rounded"
-              onClick={() => deleteTask(task.id)}
-            >
-              Delete
-            </button>
+            <div className="flex gap-2">
+              <button
+                className="bg-yellow-500 text-white px-3 py-1 rounded"
+                onClick={() => editTask(task)}
+              >
+                Edit
+              </button>
+              <button
+                className="bg-red-500 text-white px-3 py-1 rounded"
+                onClick={() => deleteTask(task.id)}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
