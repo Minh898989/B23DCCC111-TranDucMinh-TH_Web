@@ -5,5 +5,6 @@ export interface StudyRecord {
     day:string;
     contentLearned:string;
     notes:string;
+  
   }
   

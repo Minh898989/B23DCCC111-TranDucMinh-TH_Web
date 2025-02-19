@@ -11,16 +11,16 @@ const LOCAL_STORAGE_KEY = "studyRecords";
 const Study: React.FC = () => {
   const [records, setRecords] = useState<StudyRecord[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<StudyRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<StudyRecord | null>(null); // Chỉ lưu record đang chọn
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [contentLearned, setContentLearned] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
-  const [selectedDay, setSelectedDay] = useState<string | null>(null); 
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const subjects = ["Toán", "Văn", "Anh", "Công nghệ", "Hóa"];
   const timeSlots = ["07:00 - 09:00", "09:30 - 11:30", "13:00 - 15:00", "15:30 - 17:30", "19:00 - 21:00"];
-  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]; 
+  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
 
   useEffect(() => {
     const storedRecords = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -39,27 +39,17 @@ const Study: React.FC = () => {
       return;
     }
 
-    if (editingRecord) {
-      const updatedRecords = records.map((record) =>
-        record.id === editingRecord.id
-          ? { ...editingRecord, subject: selectedSubject, time: selectedTimeSlot, contentLearned, notes, day: selectedDay }
-          : record
-      );
-      setRecords(updatedRecords);
-      message.success("Môn học đã được cập nhật!");
-    } else {
-      const newRecord = {
-        id: Date.now().toString(),
-        subject: selectedSubject,
-        time: selectedTimeSlot,
-        contentLearned,
-        notes,
-        day: selectedDay,
-      };
-      setRecords([...records, newRecord]);
-      message.success("Môn học đã được thêm!");
-    }
+    const newRecord = {
+      id: Date.now().toString(),
+      subject: selectedSubject,
+      time: selectedTimeSlot,
+      contentLearned,
+      notes,
+      day: selectedDay,
+    };
 
+    setRecords([...records, newRecord]);
+    message.success("Môn học đã được thêm!");
     resetModal();
   };
 
@@ -69,14 +59,9 @@ const Study: React.FC = () => {
     message.success("Môn học đã được xóa!");
   };
 
-  const editRecord = (record: StudyRecord) => {
-    setEditingRecord(record);
-    setSelectedSubject(record.subject);
-    setSelectedTimeSlot(record.time);
-    setContentLearned(record.contentLearned);
-    setNotes(record.notes);
-    setSelectedDay(record.day); 
-    setModalVisible(true);
+  const viewRecord = (record: StudyRecord) => {
+    setSelectedRecord(record);
+    setModalVisible(true); // Mở modal để xem chi tiết lịch học
   };
 
   const resetModal = () => {
@@ -84,8 +69,8 @@ const Study: React.FC = () => {
     setSelectedTimeSlot(null);
     setContentLearned("");
     setNotes("");
-    setSelectedDay(null); 
-    setEditingRecord(null);
+    setSelectedDay(null);
+    setSelectedRecord(null);
     setModalVisible(false);
   };
 
@@ -95,6 +80,11 @@ const Study: React.FC = () => {
       dataIndex: "subject",
       key: "subject",
       align: "center",
+      render: (text: string, record: StudyRecord) => (
+        <Button type="link" onClick={() => viewRecord(record)}>
+          {text}
+        </Button>
+      ),
     },
     {
       title: "Khung Giờ Học",
@@ -126,7 +116,7 @@ const Study: React.FC = () => {
       align: "center",
       render: (_: any, record: StudyRecord) => (
         <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-          <Button type="default" onClick={() => editRecord(record)} icon={<EditOutlined />}>
+          <Button type="default" icon={<EditOutlined />}>
             Sửa
           </Button>
           <Button type="primary" danger onClick={() => deleteRecord(record.id)} icon={<DeleteOutlined />}>
@@ -149,12 +139,32 @@ const Study: React.FC = () => {
 
       <Table dataSource={records} columns={columns} rowKey="id" className="study-table" />
 
+      {/* Modal để hiển thị chi tiết lịch học của môn học */}
       <Modal
-        title={editingRecord ? "Chỉnh Sửa Môn Học" : "Thêm Môn Học"}
+        title={selectedRecord ? `Chi Tiết Môn Học - ${selectedRecord.subject}` : ""}
         visible={modalVisible}
         onCancel={resetModal}
+        footer={null}
+        cancelText="Đóng"
+      >
+        {selectedRecord && (
+          <div className="modal-content">
+            <p><strong>Môn học:</strong> {selectedRecord.subject}</p>
+            <p><strong>Khung giờ học:</strong> {selectedRecord.time}</p>
+            <p><strong>Ngày học:</strong> {selectedRecord.day}</p>
+            <p><strong>Nội dung đã học:</strong> {selectedRecord.contentLearned}</p>
+            <p><strong>Ghi chú:</strong> {selectedRecord.notes}</p>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal thêm môn học */}
+      <Modal
+        title="Thêm Môn Học"
+        visible={!selectedRecord && modalVisible}
+        onCancel={resetModal}
         onOk={add}
-        okText={editingRecord ? "Cập Nhật" : "Thêm"}
+        okText="Thêm"
         cancelText="Hủy"
       >
         <div className="modal-content">
@@ -222,3 +232,4 @@ const Study: React.FC = () => {
 };
 
 export default Study;
+
