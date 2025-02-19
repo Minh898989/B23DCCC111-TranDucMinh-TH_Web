@@ -16,11 +16,11 @@ const Study: React.FC = () => {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [contentLearned, setContentLearned] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
-  const [selectedDay, setSelectedDay] = useState<string | null>(null); // Thêm trạng thái cho ngày học
+  const [selectedDay, setSelectedDay] = useState<string | null>(null); 
 
   const subjects = ["Toán", "Văn", "Anh", "Công nghệ", "Hóa"];
   const timeSlots = ["07:00 - 09:00", "09:30 - 11:30", "13:00 - 15:00", "15:30 - 17:30", "19:00 - 21:00"];
-  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]; // Các ngày trong tuần
+  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]; 
 
   useEffect(() => {
     const storedRecords = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -75,7 +75,7 @@ const Study: React.FC = () => {
     setSelectedTimeSlot(record.time);
     setContentLearned(record.contentLearned);
     setNotes(record.notes);
-    setSelectedDay(record.day); // Lấy ngày học khi chỉnh sửa
+    setSelectedDay(record.day); 
     setModalVisible(true);
   };
 
@@ -84,7 +84,7 @@ const Study: React.FC = () => {
     setSelectedTimeSlot(null);
     setContentLearned("");
     setNotes("");
-    setSelectedDay(null); // Đặt lại ngày khi đóng modal
+    setSelectedDay(null); 
     setEditingRecord(null);
     setModalVisible(false);
   };
