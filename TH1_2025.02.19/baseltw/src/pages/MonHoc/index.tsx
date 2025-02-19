@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Modal, Table, Select, message } from "antd";
+import { Button, Modal, Table, Select, Input, message } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import "./styles.css";
 import { StudyRecord } from "@/services/MonHoc/typings";
@@ -8,15 +8,19 @@ const { Option } = Select;
 
 const LOCAL_STORAGE_KEY = "studyRecords";
 
-const StudyTracker: React.FC = () => {
+const Study: React.FC = () => {
   const [records, setRecords] = useState<StudyRecord[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<StudyRecord | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [editingRecord, setEditingRecord] = useState<StudyRecord | null>(null);
+  const [contentLearned, setContentLearned] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+  const [selectedDay, setSelectedDay] = useState<string | null>(null); // Thêm trạng thái cho ngày học
 
   const subjects = ["Toán", "Văn", "Anh", "Công nghệ", "Hóa"];
   const timeSlots = ["07:00 - 09:00", "09:30 - 11:30", "13:00 - 15:00", "15:30 - 17:30", "19:00 - 21:00"];
+  const daysOfWeek = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"]; // Các ngày trong tuần
 
   useEffect(() => {
     const storedRecords = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -29,20 +33,29 @@ const StudyTracker: React.FC = () => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records));
   }, [records]);
 
-  const addOrUpdateRecord = () => {
-    if (!selectedSubject || !selectedTimeSlot) {
-      message.error("Vui lòng chọn môn học và khung giờ!");
+  const add = () => {
+    if (!selectedSubject || !selectedTimeSlot || !contentLearned || !selectedDay) {
+      message.error("Vui lòng điền đủ thông tin!");
       return;
     }
 
     if (editingRecord) {
-      const updatedRecords = records.map(record =>
-        record.id === editingRecord.id ? { ...editingRecord, subject: selectedSubject, time: selectedTimeSlot } : record
+      const updatedRecords = records.map((record) =>
+        record.id === editingRecord.id
+          ? { ...editingRecord, subject: selectedSubject, time: selectedTimeSlot, contentLearned, notes, day: selectedDay }
+          : record
       );
       setRecords(updatedRecords);
       message.success("Môn học đã được cập nhật!");
     } else {
-      const newRecord = { id: Date.now().toString(), subject: selectedSubject, time: selectedTimeSlot };
+      const newRecord = {
+        id: Date.now().toString(),
+        subject: selectedSubject,
+        time: selectedTimeSlot,
+        contentLearned,
+        notes,
+        day: selectedDay,
+      };
       setRecords([...records, newRecord]);
       message.success("Môn học đã được thêm!");
     }
@@ -51,7 +64,7 @@ const StudyTracker: React.FC = () => {
   };
 
   const deleteRecord = (id: string) => {
-    const updatedRecords = records.filter(record => record.id !== id);
+    const updatedRecords = records.filter((record) => record.id !== id);
     setRecords(updatedRecords);
     message.success("Môn học đã được xóa!");
   };
@@ -60,12 +73,18 @@ const StudyTracker: React.FC = () => {
     setEditingRecord(record);
     setSelectedSubject(record.subject);
     setSelectedTimeSlot(record.time);
+    setContentLearned(record.contentLearned);
+    setNotes(record.notes);
+    setSelectedDay(record.day); // Lấy ngày học khi chỉnh sửa
     setModalVisible(true);
   };
 
   const resetModal = () => {
     setSelectedSubject(null);
     setSelectedTimeSlot(null);
+    setContentLearned("");
+    setNotes("");
+    setSelectedDay(null); // Đặt lại ngày khi đóng modal
     setEditingRecord(null);
     setModalVisible(false);
   };
@@ -81,6 +100,24 @@ const StudyTracker: React.FC = () => {
       title: "Khung Giờ Học",
       dataIndex: "time",
       key: "time",
+      align: "center",
+    },
+    {
+      title: "Ngày Học",
+      dataIndex: "day",
+      key: "day",
+      align: "center",
+    },
+    {
+      title: "Nội Dung Đã Học",
+      dataIndex: "contentLearned",
+      key: "contentLearned",
+      align: "center",
+    },
+    {
+      title: "Ghi Chú",
+      dataIndex: "notes",
+      key: "notes",
       align: "center",
     },
     {
@@ -116,7 +153,7 @@ const StudyTracker: React.FC = () => {
         title={editingRecord ? "Chỉnh Sửa Môn Học" : "Thêm Môn Học"}
         visible={modalVisible}
         onCancel={resetModal}
-        onOk={addOrUpdateRecord}
+        onOk={add}
         okText={editingRecord ? "Cập Nhật" : "Thêm"}
         cancelText="Hủy"
       >
@@ -148,10 +185,40 @@ const StudyTracker: React.FC = () => {
               </Option>
             ))}
           </Select>
+
+          <label>Chọn ngày học:</label>
+          <Select
+            style={{ width: "100%" }}
+            placeholder="Chọn ngày học"
+            value={selectedDay}
+            onChange={setSelectedDay}
+          >
+            {daysOfWeek.map((day) => (
+              <Option key={day} value={day}>
+                {day}
+              </Option>
+            ))}
+          </Select>
+
+          <label>Nội dung đã học:</label>
+          <Input.TextArea
+            value={contentLearned}
+            onChange={(e) => setContentLearned(e.target.value)}
+            placeholder="Mô tả nội dung đã học"
+            rows={4}
+          />
+
+          <label>Ghi chú:</label>
+          <Input.TextArea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Nhập ghi chú"
+            rows={2}
+          />
         </div>
       </Modal>
     </div>
   );
 };
 
-export default StudyTracker;
+export default Study;
