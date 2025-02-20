@@ -1,149 +1,107 @@
-
 .todo-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 30px;
-    font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #1c1f26, #2b2f3a); /* Deep gradient */
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-  
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .title {
-    text-align: center;
-    font-size: 2.5rem;
-    font-weight: 600;
-    margin-bottom: 20px;
-    color: #e0c084; 
-    text-shadow: 2px 2px 10px rgba(224, 192, 132, 0.5);
-  }
+.title {
+  text-align: center;
+  color: #1890ff;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
 
+.task-input {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.task-input-field {
+  flex: 1;
+}
+
+.date-picker {
+  min-width: 150px;
+}
+
+.add-button {
+  min-width: 100px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  margin: 0;
+  transition: transform 0.2s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-content {
+  flex: 1;
+}
+
+.task-text {
+  margin: 0;
+  font-size: 16px;
+  color: #262626;
+}
+
+.task-date {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.task-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button,
+.delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+@media (max-width: 576px) {
   .task-input {
-    display: flex;
-    gap: 12px;
-    justify-content: space-between;
-    margin-bottom: 30px;
+    flex-direction: column;
   }
   
- 
-  .task-input-field {
-    flex-grow: 1;
-    padding: 12px;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: none;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    transition: 0.3s ease;
-  }
-  
-  .task-input-field:focus {
-    background: rgba(255, 255, 255, 0.2);
-    outline: none;
-  }
-  
-
   .date-picker {
-    border-radius: 8px;
-    font-size: 1rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: none;
+    width: 100%;
   }
-
+  
   .add-button {
-    background: linear-gradient(135deg, #e0c084, #b39256);
-    color: #1c1f26;
-    border: none;
-    padding: 22px 24px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+    width: 100%;
   }
   
-  .add-button:hover {
-    background: linear-gradient(135deg, #b39256, #8d6e3c);
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(224, 192, 132, 0.4);
-  }
-  
-
-  .task-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    padding: 10px;
-  }
-
   .task-card {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    transition: 0.3s ease;
-    position: relative;
+    flex-direction: column;
+    align-items: stretch;
   }
   
-  .task-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
-
-  .task-content {
-    color: white;
-    font-size: 1.2rem;
-    font-weight: 500;
-  }
-  
-  .task-date {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
-  }
-  
-
   .task-actions {
-    display: flex;
+    margin-top: 12px;
     justify-content: flex-end;
-    gap: 12px;
-    margin-top: 15px;
   }
-
-  .edit-button {
-    background: transparent;
-    color: #e0c084;
-    transition: 0.3s;
-  }
-  
-  .edit-button:hover {
-    color: #b39256;
-    transform: scale(1.1);
-  }
-
-  .delete-button {
-    background: transparent;
-    color: #ff6b6b;
-    transition: 0.3s;
-  }
-  
-  .delete-button:hover {
-    color: #ff3b3b;
-    transform: scale(1.1);
-  }
-  
-
-  @media (max-width: 768px) {
-    .task-input {
-      flex-direction: column;
-      gap: 10px;
-    }
-  
-    .task-input-field,
-    .date-picker,
-    .add-button {
-      width: 100%;
-    }
-  }
-  
+}
