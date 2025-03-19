@@ -43,6 +43,13 @@
 		component: './MonHoc',
 		icon: 'PicRightOutlined',
 	},
+	{
+		path: '/ProfileCard',
+		name: 'ProfileCard',
+		component: './ProfileCard',
+		icon: 'BulbOutlined',
+	},
+	
 	
 
 	// DANH MUC HE THONG
