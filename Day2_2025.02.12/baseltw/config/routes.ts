@@ -42,6 +42,12 @@
 		component: './Todolist',
 		icon: 'SnippetsOutlined',
 	},
+	{
+		path: '/tuti',
+		name: 'Tù Tì',
+		component: './TuTi',
+		icon: 'BulbOutlined',
+	},
 
 	// DANH MUC HE THONG
 	// {
