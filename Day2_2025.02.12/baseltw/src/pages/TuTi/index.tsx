@@ -33,6 +33,7 @@ const Tuti = () => {
     }, []);
 
     const playGame = (nguoiChon: Chon) => {
+        
         const MayChon = mayChon();
         const ketqua = Win(nguoiChon, MayChon);
         
