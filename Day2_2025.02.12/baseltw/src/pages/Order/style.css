@@ -1,0 +1,91 @@
+body {
+    font-family: "Poppins", Arial, sans-serif;
+    background: linear-gradient(to right, #f0f2f5, #d9e2ec);
+    margin: 0;
+    padding: 20px;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .ant-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .ant-table-thead > tr > th {
+    background: linear-gradient(45deg, #1890ff, #40a9ff);
+    
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+    padding: 12px;
+  }
+  
+ 
+  .ant-table-tbody > tr:hover {
+    background: rgba(24, 144, 255, 0.1);
+  }
+  
+  .ant-table-tbody > tr > td {
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .ant-btn-primary {
+    background: #1890ff;
+    border-color: #1890ff;
+    transition: all 0.3s ease-in-out;
+    font-weight: bold;
+    border-radius: 6px;
+  }
+  
+  .ant-btn-primary:hover {
+    background: #40a9ff;
+    border-color: #40a9ff;
+    transform: scale(1.05);
+  }
+  
+  .search-filter-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  
+  .search-filter-container .ant-input {
+    flex: 1;
+    border-radius: 6px;
+    padding: 10px;
+  }
+  
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .modal-form .ant-form-item {
+    margin-bottom: 12px;
+  }
+  
+  .modal-form .ant-btn {
+    width: 100%;
+    border-radius: 6px;
+    font-weight: bold;
+  }
+  
+  @media (max-width: 768px) {
+    .search-filter-container {
+      flex-direction: column;
+    }
+  }
+  

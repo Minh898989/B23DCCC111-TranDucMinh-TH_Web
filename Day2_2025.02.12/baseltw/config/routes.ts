@@ -48,6 +48,12 @@
 		component: './TuTi',
 		icon: 'BulbOutlined',
 	},
+	{
+		path: '/order',
+		name: 'Order',
+		component: './Order',
+		icon: 'CheckOutlined',
+	},
 	
 
 	// DANH MUC HE THONG
