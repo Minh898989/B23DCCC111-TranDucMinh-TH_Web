@@ -72,6 +72,14 @@ const OrderList = () => {
     setIsModalOpen(false);
     form.resetFields();
   };
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    const updatedOrders = orders.map(order =>
+      order.id === orderId ? { ...order, status: newStatus } : order
+    );
+    setOrders(updatedOrders);
+    setFilteredOrders(updatedOrders);
+  };
+  
 
   const handleDeleteOrder = (orderId: string) => {
     const order = orders.find(o => o.id === orderId);
@@ -102,13 +110,29 @@ const OrderList = () => {
     { title: "Khách hàng", dataIndex: "customer", key: "customer" },
     { title: "Ngày đặt hàng", dataIndex: "date", key: "date", sorter: (a, b) => a.date.localeCompare(b.date) },
     { title: "Tổng tiền", dataIndex: "total", key: "total", sorter: (a, b) => a.total - b.total },
-    { title: "Trạng thái", dataIndex: "status", key: "status" },
+    { 
+      title: "Trạng thái", 
+      dataIndex: "status", 
+      key: "status",
+      render: (_, record) => (
+        <Select 
+          value={record.status} 
+          onChange={(value) => handleStatusChange(record.id, value)} 
+          style={{ width: 120 }}
+        >
+          <Option value="Chờ xác nhận">Chờ xác nhận</Option>
+          <Option value="Đang giao">Đang giao</Option>
+          <Option value="Hoàn thành">Hoàn thành</Option>
+          <Option value="Hủy">Hủy</Option>
+        </Select>
+      )
+    },
     { title: "Hành động", key: "action", render: (_, record) => (
         <Button type="link" onClick={() => handleDeleteOrder(record.id)}>Hủy</Button>
       )
     }
   ];
-
+  
   return (
     <div>
       <div style={{ marginBottom: 16, display: "flex", gap: 10 }}>
