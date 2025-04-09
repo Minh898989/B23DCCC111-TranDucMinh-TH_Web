@@ -49,6 +49,28 @@
 		component: './ProfileCard',
 		icon: 'BulbOutlined',
 	},
+	{
+		name: 'TH4',
+		path: '/TH4',
+		icon: 'ClockCircleOutlined',
+		routes: [
+			{
+				path: 'UngVienDangKy',
+				name: 'Ứng Viên Đăng Ký',
+				component: './TH4/UngVienDangKy',  
+			},
+			{
+				path: 'QuanLyDonDangKy',
+				name: 'Quản Lý Đơn Đăng Ký',
+				component: './TH4/QuanLyDonDangKy',  
+			},
+			{
+				path: 'Thong ke',
+				name: 'Thống Kê',
+				component: './TH4/ThongKe',  
+			},
+		]
+	},
 	
 	
 
