@@ -15,6 +15,7 @@ import type { Destination } from "../../../services/KhamPhaDiemDen/typings";
 import dayjs from "dayjs";
 
 const LOCAL_STORAGE_KEY = "destinations";
+const ITINERARIES_STORAGE_KEY = "itineraries"; // Thêm key lưu lịch trình
 const { Title } = Typography;
 
 interface ItineraryItem {
@@ -39,16 +40,22 @@ const ItineraryPlanner: React.FC = () => {
 
   // Load danh sách điểm đến từ localStorage
   useEffect(() => {
-    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (stored) {
-      setDestinations(JSON.parse(stored));
+    const storedDestinations = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedDestinations) {
+      setDestinations(JSON.parse(storedDestinations));
+    }
+
+    // Load các lịch trình đã lưu từ localStorage
+    const storedItineraries = localStorage.getItem(ITINERARIES_STORAGE_KEY);
+    if (storedItineraries) {
+      setAllItineraries(JSON.parse(storedItineraries));
     }
   }, []);
 
   const openModal = () => {
-    form.resetFields();
-    setSelectedIds([]);
-    setIsModalOpen(true);
+    form.resetFields(); // Reset các trường trong form
+    setSelectedIds([]); // Reset các địa điểm đã chọn
+    setIsModalOpen(true); // Mở modal
   };
 
   const handleAddToItinerary = () => {
@@ -69,9 +76,16 @@ const ItineraryPlanner: React.FC = () => {
         items,
       };
 
-      setAllItineraries((prev) => [...prev, newItinerary]);
-      setIsModalOpen(false);
+      const updatedItineraries = [...allItineraries, newItinerary];
+
+      // Lưu lịch trình mới vào localStorage
+      localStorage.setItem(ITINERARIES_STORAGE_KEY, JSON.stringify(updatedItineraries));
+
+      setAllItineraries(updatedItineraries);
+      setIsModalOpen(false); // Đóng modal
       message.success("Đã tạo lịch trình mới!");
+
+      // Reset form và danh sách đã chọn
       form.resetFields();
       setSelectedIds([]);
     });
