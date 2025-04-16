@@ -1,178 +1,195 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Typography,
-  Table,
   Button,
+  Card,
+  Form,
+  InputNumber,
   Modal,
   Select,
-  InputNumber,
-  Space,
-  Divider,
+  Table,
+  Tag,
+  Typography,
   message,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
-import { PlusOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
+import type { Destination } from "../../../services/KhamPhaDiemDen/typings";
+import dayjs from "dayjs";
 
+const LOCAL_STORAGE_KEY = "destinations";
 const { Title } = Typography;
-const { Option } = Select;
 
-interface DestinationPlan {
-  key: string;
+interface ItineraryItem {
+  id: number;
   name: string;
-  date: string;
   cost: number;
-  travelTime: number; // in hours
+  duration: number; // giờ
 }
 
-// Fake danh sách các điểm đến có thể chọn
-const availableDestinations = [
-  { name: "Vịnh Hạ Long", cost: 1500000, travelTime: 2.5 },
-  { name: "Đà Lạt", cost: 1200000, travelTime: 4 },
-  { name: "Hà Nội", cost: 1000000, travelTime: 1 },
-  { name: "Sapa", cost: 1300000, travelTime: 3.5 },
-];
+interface Itinerary {
+  id: number;
+  createdTime: string;
+  items: ItineraryItem[];
+}
 
-const TravelPlanner: React.FC = () => {
-  const [schedule, setSchedule] = useState<DestinationPlan[]>([]);
+const ItineraryPlanner: React.FC = () => {
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [allItineraries, setAllItineraries] = useState<Itinerary[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<string | undefined>();
-  const [day, setDay] = useState<number>(1);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [form] = Form.useForm();
 
-  const handleAddDestination = () => {
-    if (!selectedDestination) return;
+  // Load danh sách điểm đến từ localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
+      setDestinations(JSON.parse(stored));
+    }
+  }, []);
 
-    const dest = availableDestinations.find(d => d.name === selectedDestination);
-    if (!dest) return;
-
-    const newEntry: DestinationPlan = {
-      key: `${Date.now()}`,
-      name: dest.name,
-      date: `Ngày ${day}`,
-      cost: dest.cost,
-      travelTime: dest.travelTime,
-    };
-
-    setSchedule([...schedule, newEntry]);
-    setIsModalOpen(false);
-    setSelectedDestination(undefined);
-    message.success("Đã thêm vào lịch trình!");
+  const openModal = () => {
+    form.resetFields();
+    setSelectedIds([]);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = (key: string) => {
-    setSchedule(schedule.filter(d => d.key !== key));
+  const handleAddToItinerary = () => {
+    form.validateFields().then((values) => {
+      const items: ItineraryItem[] = selectedIds.map((id) => {
+        const dest = destinations.find((d) => d.id === id);
+        return {
+          id: dest!.id,
+          name: dest!.name,
+          cost: values[`cost_${id}`],
+          duration: values[`duration_${id}`],
+        };
+      });
+
+      const newItinerary: Itinerary = {
+        id: Date.now(),
+        createdTime: dayjs().format("YYYY-MM-DD HH:mm:ss"),
+        items,
+      };
+
+      setAllItineraries((prev) => [...prev, newItinerary]);
+      setIsModalOpen(false);
+      message.success("Đã tạo lịch trình mới!");
+      form.resetFields();
+      setSelectedIds([]);
+    });
   };
 
-  const moveItem = (index: number, direction: "up" | "down") => {
-    const newSchedule = [...schedule];
-    const targetIndex = direction === "up" ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= schedule.length) return;
-
-    [newSchedule[index], newSchedule[targetIndex]] = [newSchedule[targetIndex], newSchedule[index]];
-    setSchedule(newSchedule);
-  };
-
-  const columns: ColumnsType<DestinationPlan> = [
-    { title: "Ngày", dataIndex: "date", key: "date" },
-    { title: "Điểm đến", dataIndex: "name", key: "name" },
+  const columns = [
+    { title: "Tên điểm đến", dataIndex: "name" },
+    { title: "Thời gian ở lại (giờ)", dataIndex: "duration" },
     {
       title: "Chi phí (VND)",
       dataIndex: "cost",
-      key: "cost",
-      render: (v) => v.toLocaleString(),
-    },
-    {
-      title: "Thời gian di chuyển (giờ)",
-      dataIndex: "travelTime",
-      key: "travelTime",
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      render: (_, record, index) => (
-        <Space>
-          <Button
-            icon={<ArrowUpOutlined />}
-            onClick={() => moveItem(index, "up")}
-            disabled={index === 0}
-          />
-          <Button
-            icon={<ArrowDownOutlined />}
-            onClick={() => moveItem(index, "down")}
-            disabled={index === schedule.length - 1}
-          />
-          <Button
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.key)}
-          />
-        </Space>
-      ),
+      render: (v: number) => v.toLocaleString(),
     },
   ];
-
-  const totalCost = schedule.reduce((sum, d) => sum + d.cost, 0);
-  const totalTravelTime = schedule.reduce((sum, d) => sum + d.travelTime, 0);
 
   return (
     <div style={{ padding: 24 }}>
       <Title level={2}>Tạo lịch trình du lịch</Title>
 
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsModalOpen(true)}>
+      <Button type="primary" onClick={openModal} style={{ marginBottom: 24 }}>
         Thêm điểm đến
       </Button>
 
-      <Table
-        columns={columns}
-        dataSource={schedule.map((item, idx) => ({
-          ...item,
-          date: `Ngày ${idx + 1}`,
-        }))}
-        pagination={false}
-        style={{ marginTop: 20 }}
-        rowKey="key"
-        scroll={{ x: "max-content" }}
-      />
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
+          gap: 24,
+        }}
+      >
+        {allItineraries.map((itinerary) => {
+          const totalCost = itinerary.items.reduce((sum, item) => sum + item.cost, 0);
+          const totalDuration = itinerary.items.reduce((sum, item) => sum + item.duration, 0);
+          const estimatedTravelTime = (itinerary.items.length - 1) * 1;
 
-      <Divider />
+          return (
+            <Card
+              key={itinerary.id}
+              title={`Lịch trình lúc ${itinerary.createdTime}`}
+              extra={<Tag color="blue">{itinerary.items.length} điểm</Tag>}
+              style={{ borderRadius: 12, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <Tag color="green">
+                  Tổng thời gian: {totalDuration + estimatedTravelTime} giờ
+                </Tag>
+                <Tag color="gold">
+                  Tổng chi phí: {totalCost.toLocaleString()} VND
+                </Tag>
+              </div>
 
-      <Space direction="vertical" size="middle">
-        <Title level={4}>Tổng ngân sách: {totalCost.toLocaleString()} VND</Title>
-        <Title level={4}>Tổng thời gian di chuyển: {totalTravelTime} giờ</Title>
-      </Space>
+              <Table
+                dataSource={itinerary.items}
+                rowKey="id"
+                columns={columns}
+                pagination={false}
+                size="small"
+              />
+            </Card>
+          );
+        })}
+      </div>
 
-      {/* Modal thêm điểm đến */}
       <Modal
-        title="Thêm điểm đến"
         visible={isModalOpen}
-        onOk={handleAddDestination}
+        title="Chọn điểm đến"
         onCancel={() => setIsModalOpen(false)}
+        onOk={handleAddToItinerary}
         okText="Thêm"
         cancelText="Hủy"
+        width={800}
       >
-        <Space direction="vertical" style={{ width: "100%" }}>
+        <Form layout="vertical" form={form}>
           <Select
-            placeholder="Chọn điểm đến"
-            value={selectedDestination}
-            onChange={(value) => setSelectedDestination(value)}
-            style={{ width: "100%" }}
+            mode="multiple"
+            placeholder="Chọn địa điểm"
+            onChange={setSelectedIds}
+            style={{ width: "100%", marginBottom: 16 }}
           >
-            {availableDestinations.map((d) => (
-              <Option key={d.name} value={d.name}>
-                {d.name} - {d.cost.toLocaleString()} VND - {d.travelTime} giờ
-              </Option>
+            {destinations.map((d) => (
+              <Select.Option key={d.id} value={d.id}>
+                {d.name}
+              </Select.Option>
             ))}
           </Select>
-          <InputNumber
-            min={1}
-            value={day}
-            onChange={(value) => setDay(value ?? 1)}
-            addonBefore="Ngày"
-            style={{ width: "100%" }}
-          />
-        </Space>
+
+          {selectedIds.map((id) => {
+            const dest = destinations.find((d) => d.id === id);
+            if (!dest) return null;
+
+            return (
+              <Card
+                key={id}
+                title={dest.name}
+                style={{ marginBottom: 16 }}
+                extra={<Tag color="magenta">{dest.location}</Tag>}
+              >
+                <Form.Item
+                  label="Thời gian ở lại (giờ)"
+                  name={`duration_${id}`}
+                  rules={[{ required: true, message: "Nhập thời gian ở lại" }]}
+                >
+                  <InputNumber min={1} max={72} />
+                </Form.Item>
+                <Form.Item
+                  label="Chi phí (VND)"
+                  name={`cost_${id}`}
+                  rules={[{ required: true, message: "Nhập chi phí" }]}
+                >
+                  <InputNumber min={0} step={50000} />
+                </Form.Item>
+              </Card>
+            );
+          })}
+        </Form>
       </Modal>
     </div>
   );
 };
 
-export default TravelPlanner;
+export default ItineraryPlanner;
